@@ -10,13 +10,13 @@
  */
 
 import java.util.Random;
-public class vehiculo {
+public class Vehiculo {
     private Random random = new Random();
     private String tipoVehiculo, placa;
     private boolean out;
     private int speed, distance;
 
-    public vehiculo (String tipoDeVehiculo, String placaDelVehiculo){
+    public Vehiculo (String tipoDeVehiculo, String placaDelVehiculo){
         placa=placaDelVehiculo;
         tipoVehiculo= tipoDeVehiculo;
         speed = random.nextInt(11);//Un número entre 0 y 10, no puede dar 11

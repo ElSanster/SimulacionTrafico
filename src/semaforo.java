@@ -11,17 +11,19 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
-public class semaforo {
+public class Semaforo {
     private Random random = new Random();
     private int time;
     private double promTime;
-    private Queue<vehiculo> semaforoQueue;
+    private Queue<Vehiculo> semaforoQueue;
     private boolean passCars;
+    private LinkedList<Vehiculo> arrivingList;
     //Pedimos el pass cars para evitar que semaforos de distintas avenidas esten en true
-    public semaforo(int setTime, boolean PassCars){
+    public Semaforo(int setTime, boolean PassCars){
         time = setTime;
         passCars= PassCars;
         semaforoQueue = new LinkedList<>();
+        arrivingList = new LinkedList<>();
     }
 
     public void setPassCars(boolean newPassCars){
@@ -34,7 +36,7 @@ public class semaforo {
             return 0;
         }else{
             int carsQueue = 0;
-            for (vehiculo p : semaforoQueue) {
+            for (Vehiculo p : semaforoQueue) {
             carsQueue++;
             }
             return carsQueue;
@@ -46,14 +48,12 @@ public class semaforo {
     }
 
     public boolean theresCarsOut (){
-        boolean carsOut = false;
-        for (vehiculo p : semaforoQueue) {
+        for (Vehiculo p : semaforoQueue) {
             if (p.getOut()){
-                carsOut = true;
-                break;
+                return true;
             }
         }
-        return carsOut;
+        return false;
     }
 
     public void addRandomVehicle(){
@@ -113,40 +113,50 @@ public class semaforo {
             placa = placa + " "+rndrumber;
         }
 
-        semaforoQueue.add(new vehiculo(newType,placa));
+        semaforoQueue.add(new Vehiculo(newType,placa));
     }
 
     public void addManualVehicle(String placa, String tipo){
-        semaforoQueue.add(new vehiculo(tipo,placa));
+        semaforoQueue.add(new Vehiculo(tipo,placa));
     }
 /*
- * Devuelve false en caso de que la lista de carros que pasaron el semaforo está vacía
+ * Devuelve verdadero en caso de que la lista de carros que pasaron el semaforo está vacía
+ * Primero, verifica si el queue de carros que van saliendo del semaforo está en su límite
+ * Luego Si la lista está vacía devuelve verdadero y sale del método
+ * Sí no está vacía: 
+ *      -Devuelve falso
+ *      - Verifica si todos los vehiculos han llegado al otro lado de la avenida
+ *        si no es así les suma su distancia
+ *        si es así cambia su boolean a true indicando que salieron de la interseccion
+ *      -Verifica si el último vehiculo del queue ha llegado a su destino
+ *        si es así, lo saca del queue y el garbage collector de java lo eliminará de la memoria
  */
     public boolean doArrivingManagement(int distanceForArrive, int maxCarsArriving){
-        Queue<vehiculo> arrivingQueue = new LinkedList<>();
-        if (arrivingQueue.size()<maxCarsArriving|| passCars){
-            for (int i = arrivingQueue.size(); i<maxCarsArriving; i++){
-                arrivingQueue.add(semaforoQueue.poll());
+        if (arrivingList.size() < maxCarsArriving && passCars){
+            for (int i = arrivingList.size(); i<maxCarsArriving; i++){
+                arrivingList.add(semaforoQueue.poll());
             }
         }
-        if (arrivingQueue.isEmpty()){
+        if (arrivingList.isEmpty()){
             return true;
         }else {
-            for (vehiculo vehiculo : arrivingQueue) {
-                if (!vehiculo.getOut()){
+            for (Vehiculo vehiculo : arrivingList) {
+                if (vehiculo.getDistance()>= distanceForArrive){
                     vehiculo.setOut(true);
                 }else{
                     vehiculo.setDistance(vehiculo.getDistance()+vehiculo.getSpeed());
                 }
-            }
-            if (arrivingQueue.peek().getDistance()==distanceForArrive){
-                arrivingQueue.poll();
+                if (vehiculo.getOut()){
+                    arrivingList.poll();
+                }
             }
             return false;
         }
     }
 
     public void arriveVehicle(){
-
+        arrivingList.add(semaforoQueue.poll());
     }
+
+
 }

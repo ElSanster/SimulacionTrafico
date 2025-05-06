@@ -25,20 +25,20 @@
  * 
  */
 import java.util.concurrent.*;// herramienta para los contadores de cada semaforo
-public class interseccion {
+public class Interseccion {
     private static int waitAv1, waitAv2;
     private static int seconds;
-    private static semaforo sm1Av1;
-    private static semaforo sm2Av1;
-    private static semaforo sm1Av2;
-    private static semaforo sm2Av2;
+    private static Semaforo sm1Av1;
+    private static Semaforo sm2Av1;
+    private static Semaforo sm1Av2;
+    private static Semaforo sm2Av2;
     private static boolean av1,av2;
 
-    public interseccion(int time){   
-        sm1Av1 = new semaforo(time, false);
-        sm2Av1 = new semaforo(time, false);
-        sm1Av2 = new semaforo(time, true);
-        sm2Av2 = new semaforo(time, true);
+    public Interseccion(int time){   
+        sm1Av1 = new Semaforo(time, false);
+        sm2Av1 = new Semaforo(time, false);
+        sm1Av2 = new Semaforo(time, true);
+        sm2Av2 = new Semaforo(time, true);
         waitAv1 = time;
         waitAv1 = time;
         seconds = 0;
