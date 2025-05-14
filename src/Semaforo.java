@@ -18,21 +18,32 @@ public class Semaforo {
     private Queue<Vehiculo> semaforoQueue;
     private boolean passCars;
     private LinkedList<Vehiculo> arrivingList;
-    //Pedimos el pass cars para evitar que semaforos de distintas avenidas esten en true
+    /**
+     * Genera una nueva clase Semáforo que conforma varios datos:
+     * Un Queue de los carros que están esperando a que el semaforo esté en verde
+     * Un linked list de los carros que aun no han llegado al final de la intersección
+     * Un boolean passCars que almacena si el semaforo está en verde, caso contrario rojo
+     * y faltando 3 segundos en el reloj de la intersección es amarillo
+     * Promtime almacena el promedio de salida de los carros
+     * @param setTime Tiempo que da para poder pasar los carros
+     * @param PassCars Establecer el semaforo en rojo o verde (true/false)
+     */
     public Semaforo(int setTime, boolean PassCars){
         time = setTime;
         passCars= PassCars;
         semaforoQueue = new LinkedList<>();
         arrivingList = new LinkedList<>();
     }
-
+    /**
+     * Establecer el semaforo en true o false
+     * @param newPassCars
+     */
     public void setPassCars(boolean newPassCars){
         passCars = newPassCars;
     }
     /**
-     * @param numberCarsInQueue Devuelve el número de carros que están dentro del queue
-     * del semaforo
-     * @return Número de carros dentro del queue del semaforo
+     * Devuelve la cantidad(Int) de cuantas clases Vehiculo hay en el queue de este Semaforo
+     * @return int carsQueue
      */
     public int numberCarsInQueue() {
         if (semaforoQueue.isEmpty())
@@ -46,11 +57,18 @@ public class Semaforo {
             return carsQueue;
         }
     }
-
+    /**
+     * Devuelve el tiempo que tarda en pasar los carros el semaforo
+     * @return
+     */
     public int getTime(){
         return time;
     }
-
+    /**
+     * Devuelve si hay carros que tienen establecido que salieron del semaforo
+     * pero no han sido transferidos al linked list para pasar al otro lado de la intersección
+     * @return theresCarsOut
+     */
     public boolean theresCarsOut (){
         for (Vehiculo p : semaforoQueue) {
             if (p.getOut()){
@@ -59,7 +77,10 @@ public class Semaforo {
         }
         return false;
     }
-
+    
+    /**
+     * Genera un vehículo dentro de este semáforo, los datos de este vehículo son al azar
+     */
     public void addRandomVehicle(){
         int randomType = random.nextInt(13);
         String newType;
@@ -119,25 +140,28 @@ public class Semaforo {
 
         semaforoQueue.add(new Vehiculo(newType,placa));
     }
-
+    /**
+     * Añade un vehículo al semáforo, puede que se desee añadir un vehículo con datos del usuario.
+     * De preferencia usar addRandomVehicle() que realiza esta acción con datos aleatorios
+     * @param placa Placa del vehiculo
+     * @param tipo Tipo de vehículo
+     */
     public void addManualVehicle(String placa, String tipo){
         semaforoQueue.add(new Vehiculo(tipo,placa));
     }
-/*
- * Devuelve verdadero en caso de que la lista de carros que pasaron el semaforo está vacía
- * Primero, verifica si el queue de carros que van saliendo del semaforo está en su límite
- * Luego Si la lista está vacía devuelve verdadero y sale del método
- * Sí no está vacía: 
- *      -Devuelve falso
- *      - Verifica si todos los vehiculos han llegado al otro lado de la avenida
- *        si no es así les suma su distancia
- *        si es así cambia su boolean a true indicando que salieron de la interseccion
- *      -Verifica si el último vehiculo del queue ha llegado a su destino
- *        si es así, lo saca del queue y el garbage collector de java lo eliminará de la memoria
- */
+    /**
+     * Hace las verificaciones principales del semáforo<br>
+     * Verifica si los carros pasando la intersección (Carros que están en arrivingList) no llegan al límite establecido (MaxcarsArriving), pasando más carros del semáforo queue para llegar al máximo<br>
+     * Luego verifica si la lista de carros pasando la intersección está vacía, devolviendo true <br>
+     * Sí no esta vacía verifica si la distancia de los vehículos es igual al del final de la intersección para quitarlos y si no
+     * suma su distancia con la velocidad del vehículo
+     * @param distanceForArrive Distancia a la que se considera que los carros pasan la intersección
+     * @param maxCarsArriving Máxima cantidad de carros en la intersección
+     * @return Ha terminado el manejo de autos en la intersección
+     */
     public boolean doArrivingManagement(int distanceForArrive, int maxCarsArriving){
         if (arrivingList.size() < maxCarsArriving && passCars){
-            for (int i = arrivingList.size(); i<maxCarsArriving; i++){
+            while(arrivingList.size() <= maxCarsArriving){
                 arrivingList.add(semaforoQueue.poll());
             }
         }
@@ -148,7 +172,7 @@ public class Semaforo {
                 if (vehiculo.getDistance()>= distanceForArrive){
                     vehiculo.setOut(true);
                 }else{
-                    vehiculo.setDistance(vehiculo.getDistance()+vehiculo.getSpeed());
+                    vehiculo.speedUp();
                 }
                 if (vehiculo.getOut()){
                     arrivingList.poll();
@@ -157,7 +181,10 @@ public class Semaforo {
             return false;
         }
     }
-
+    /**
+    * Saca el carro de la intersección (que posteriormente debía estar en su semáforo),
+    * con esto saldría de la simulación y el garbage collector se desharía de el
+    */
     public void arriveVehicle(){
         arrivingList.add(semaforoQueue.poll());
     }

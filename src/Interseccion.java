@@ -37,7 +37,13 @@ public class Interseccion {
     private static Semaforo sm1Av2;
     private static Semaforo sm2Av2;
     private static boolean av1,av2;
-
+    /**
+     * Tomando en cuenta el comentario dentro de esta clase, genera una nueva intersección y crea 4 semáforos
+     * Maneja los semáforos dependiendo de que avenida es la que se abre y llama los respectivos métodos para 
+     * mover y quitar carros de las listas de sus semáforos, también calculara el promedio y dará prioridad
+     * a aquellos semáforos que tienen más carros
+     * @param time Cantidad de tiempo para los semáforos
+     */
     public Interseccion(int time){   
         sm1Av1 = new Semaforo(time, false);
         sm2Av1 = new Semaforo(time, false);
@@ -47,12 +53,25 @@ public class Interseccion {
         waitAv1 = time;
         seconds = 0;
     }
-
+    /**
+     * Método en construccion - Eliminar este mensaje cuando se termine-
+     * Inicia un reloj que hace un conteo de los semáforos de una avenida y dependiendo del tiempo
+     * establecido de espera, cierra los semaforos y espera a que su método de salida de carros
+     * termine para empezar con este mismo proceso con los semáforos de la otra avenida, entre este
+     * cambio entre semáforos, calcula el promedio por avenida y realiza los cambios (prioriza)
+     * a los semaforos dependiendo de la cantidad de carros que hay en estos.
+     * @param distanceForArrive Distancia a la que los carros pasan la intersección (ArrivingList en los semáforos)
+     * @param maxCarsPerArriving Máxima cantidad de carros en la intersección (Arriving list en los semáforos)
+     */
     public void StartIntersection(int distanceForArrive, int maxCarsPerArriving){
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(()->{
             seconds++;
-            
+            //Primero empezar con la comparación de los semáforos y preferiblemente saltar tareas insecesarias
+
+            //Luego calcular que avenida requiere más prioridad en base a la cantidad de carros en sus semáforos
+
+            //Luego calcular el promedio en base a este prioridad y actualizar el de los semáforos
             
         },0,1,TimeUnit.SECONDS);
     }
