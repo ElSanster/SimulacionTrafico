@@ -24,7 +24,11 @@
  * avenida y más para la otra. (Esto cubre el promedio, tiempos de espera y priorización).
  * 
  */
-import java.util.concurrent.*;// herramienta para los contadores de cada semaforo
+import java.util.concurrent.*;
+/*Paquete para programación concurrente, este es todo un tema por aparte con procesos en paralelo
+* Por ahora usaremos el método ScheduledExecutorService para ejecutar un reloj que
+* Haga las verificaciones de logica con los semaforos
+*/
 public class Interseccion {
     private static int waitAv1, waitAv2;
     private static int seconds;

@@ -1,5 +1,5 @@
 /* 
- * El semáforo será una lista de tipo queue qué recibirá y mostrará los autos
+ * El semáforo tendrá una lista de tipo queue qué recibirá y mostrará los autos
  * en cola, liberará uno por uno dependiendo del tiempo que cada 
  * carro tarda en avanzar (número que almacena el carro) qué se descuenta del contador.
  * 
@@ -29,7 +29,11 @@ public class Semaforo {
     public void setPassCars(boolean newPassCars){
         passCars = newPassCars;
     }
-
+    /**
+     * @param numberCarsInQueue Devuelve el número de carros que están dentro del queue
+     * del semaforo
+     * @return Número de carros dentro del queue del semaforo
+     */
     public int numberCarsInQueue() {
         if (semaforoQueue.isEmpty())
         {
