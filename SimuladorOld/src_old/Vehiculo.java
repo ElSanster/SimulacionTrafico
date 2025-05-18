@@ -1,10 +1,10 @@
+package src_old;
 
 
 import java.util.Random;
 public class Vehiculo {
     private Random random = new Random();
     private String tipoVehiculo, placa;
-    private boolean out;
     private int speed, distance;
     /**
      * Clase vehiculo para ser almacenado en un semáforo,
@@ -17,7 +17,6 @@ public class Vehiculo {
         placa=placaDelVehiculo;
         tipoVehiculo= tipoDeVehiculo;
         speed = random.nextInt(11);//Según la documentación, genera un número por debajo de 11, osea entre 0 y 10
-        out = false;
     }
 /**
  * Devuelve el tipo de vehículo
@@ -46,20 +45,6 @@ public class Vehiculo {
  */
     public int getDistance(){
         return distance;
-    }
-/**
- * Devuelve si el vehículo salió del semaforo y está en la intersección
- * @return
- */
-    public boolean getOut() {
-        return out;
-    }
-/**
- * Establece la variable de salida del semáforo
- * @param newOut Ha salido del semáforo?
- */
-    public void setOut(boolean newOut){
-        out = newOut;
     }
 /**
  * Establece la nueva distancia que lleva el vehículo, si vas a sumar su velocidad con la distancia, usa speedUp()

@@ -1,3 +1,4 @@
+package src_old;
 
 /* 
  * El semáforo tendrá una lista de tipo queue qué recibirá y mostrará los autos
@@ -16,7 +17,10 @@ public class Semaforo {
     private Random random = new Random();
     private int time;
     private double promTime;
+    
+
     private Queue<Vehiculo> semaforoQueue;
+    private int[] lastTimes;
     private boolean passCars;
     private int distanceForArrive;
     private int maxCarsArriving;
@@ -55,12 +59,15 @@ public class Semaforo {
         passCars = PassCars;
         semaforoQueue = new LinkedList<>();
         arrivingList = new LinkedList<>();
+        for (int i = 0; i < lastTimes.length; i++) {
+            lastTimes[i] = 0;
+        }
         distanceForArrive = distanceForArriving;
         maxCarsArriving = maxCarsArrive;
     }
 
     /**
-     * Cambia a false cuando era true y viceversa.
+     * Un interruptor que cambia el estado del semáforo de false a true y viceversa
      * 
      */
     public void switchPassCars() {
@@ -86,7 +93,7 @@ public class Semaforo {
     }
 
     /**
-     * Devuelve el tiempo que tarda en pasar los carros el semaforo
+     * Devuelve el tiempo qué da el semáforo para pasar los carros
      * 
      * @return
      */
@@ -95,19 +102,50 @@ public class Semaforo {
     }
 
     /**
-     * Devuelve si hay carros que tienen establecido que salieron del semaforo
-     * pero no han sido transferidos al linked list para pasar al otro lado de la
-     * intersección
-     * 
-     * @return theresCarsOut
-     */
-    public boolean theresCarsOut() {
-        for (Vehiculo p : semaforoQueue) {
-            if (p.getOut()) {
-                return true;
+     * Añade un nuevo tiempo dentro del array de tiempos de espera para este semáforo
+     * @param timeToAdd
+    */
+    public void addTime(int timeToAdd) {
+        for (int i = 0; i < lastTimes.length; i++) {// Aquí inserta el nuevo tiempo si el array está libre
+            if (lastTimes[i] == -1) {
+                lastTimes[i] = timeToAdd;
+                return;
             }
         }
-        return false;
+        // Si el array no está libre, corre y inserta los tiempos
+        for (int i = 0; i < lastTimes.length - 1; i++) {
+            lastTimes[i] = lastTimes[i + 1];
+        }
+        lastTimes[0] = timeToAdd;
+    }
+
+    /**
+     * Realiza el procedimiento para sacar el promedio de tiempos del semáforo, devuelve false si no hay algún tiempo para almacenar
+     * Esto lo hace automáticamente el método de obtener el promedio.
+     * @return bool - se pudo hacer el cálculo del promedio
+     */
+    public boolean calculateprom() {
+        int suma = 0, lastTimesToProm = 0;
+        for (int i = 0; i < lastTimes.length; i++) {
+            if (lastTimes[i] > -1) {
+                lastTimesToProm++;
+                suma += lastTimes[i];
+            }
+        }
+        if (lastTimesToProm == 0) {
+            return false;
+        } else {
+            promTime = suma / lastTimesToProm;
+            return true;
+        }
+    }
+
+    public double getPromTime() {
+        if (calculateprom()){
+            return promTime;
+        }else{
+            return 0;
+        }
     }
 
     /**
@@ -175,7 +213,7 @@ public class Semaforo {
         semaforoQueue.add(new Vehiculo(newType, placa));
     }
 
-    /**
+    /**ki
      * Añade un vehículo al semáforo, puede que se desee añadir un vehículo con
      * datos del usuario.
      * De preferencia usar addRandomVehicle() que realiza esta acción con datos
@@ -190,7 +228,9 @@ public class Semaforo {
 
     /**
      * Realiza el paso de semáforo a intersección
-     * En caso de que la lista esté llena o el queue este vacío, significa que no hizo cambios y devolverá falso
+     * En caso de que la lista esté llena o el queue este vacío, significa que no
+     * hizo cambios y devolverá falso
+     * 
      * @return Boolean - Pasó un carro
      */
     public boolean PassACar() {
@@ -228,12 +268,9 @@ public class Semaforo {
         } else {
             for (Vehiculo vehiculo : arrivingList) {
                 if (vehiculo.getDistance() >= distanceForArrive) {
-                    vehiculo.setOut(true);
+                    arrivingList.remove(vehiculo);
                 } else {
                     vehiculo.speedUp();
-                }
-                if (vehiculo.getOut()) {
-                    arrivingList.poll();
                 }
             }
             return false;
@@ -248,5 +285,7 @@ public class Semaforo {
     public void arriveVehicle() {
         arrivingList.add(semaforoQueue.poll());
     }
+
+    
 
 }

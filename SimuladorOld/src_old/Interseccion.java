@@ -1,3 +1,4 @@
+package src_old;
 
 /*
  * Basado en una intersección entre 2 avenidas, esta intersección debe tener 4 semaforos;
@@ -25,21 +26,20 @@
  * 
  */
 import java.util.concurrent.*;
-import java.util.LinkedList;
-
 /*Paquete para programación concurrente, este es todo un tema por aparte con procesos en paralelo
 * Por ahora usaremos el método ScheduledExecutorService para ejecutar un reloj que
 * Haga las verificaciones de logica con los semaforos
 */
+import java.util.LinkedList;
+
+//Para agrupar los semáforos en avenidas
 public class Interseccion {
-    private static int waitAvVertical, waitAvHorizontal; // Tiempo de espera de cada semáforo
     private static int seconds; // Segundos entre cambio de semáforos
-    // Semáforos dentro de la intersección sm(Dirección semáforo)Av(Tipo avenida)
-    private static Semaforo smDownAvVertical;
-    private static Semaforo smUpAvVertical;
-    private static Semaforo smLeftAvHorizontal;
-    private static Semaforo smRightAvHorizontal;
     private static boolean running;// Almacena el estado del reloj
+    private static boolean turnVertical;
+    /**
+     * Lista (tomadas como avenida) que almacenan los semáforos
+     */
     private static LinkedList<Semaforo> avVerticals, avHorizontals;
 
     /**
@@ -50,14 +50,13 @@ public class Interseccion {
      * @param time int - Cantidad de tiempo para los semáforos
      */
     public Interseccion(int time, int distanceForArriving, int maxCarsArrive) {
-        avVerticals.add(smDownAvVertical = new Semaforo(time, true, distanceForArriving, maxCarsArrive));
-        avVerticals.add(smUpAvVertical = new Semaforo(time, true, distanceForArriving, maxCarsArrive));
-        avHorizontals.add(smLeftAvHorizontal = new Semaforo(time, false, distanceForArriving, maxCarsArrive));
-        avHorizontals.add(smRightAvHorizontal = new Semaforo(time, false, distanceForArriving, maxCarsArrive));
-        waitAvVertical = time;
-        waitAvHorizontal = time;
+        avVerticals.add(new Semaforo(time, true, distanceForArriving, maxCarsArrive));
+        avVerticals.add(new Semaforo(time, true, distanceForArriving, maxCarsArrive));
+        avHorizontals.add(new Semaforo(time, false, distanceForArriving, maxCarsArrive));
+        avHorizontals.add(new Semaforo(time, false, distanceForArriving, maxCarsArrive));
+        turnVertical = true;
         seconds = 0;
-        
+
     }
 
     /**
@@ -91,45 +90,75 @@ public class Interseccion {
         scheduler.scheduleAtFixedRate(() -> {
             if (!running) {
                 // Para la ejecución del reloj
-                seconds ++;
+                seconds++;
                 return;
             }
-            int finished = 0;
-            for (Semaforo semaforo : avHorizontals) {
-                if (semaforo.getPassCars()){
-                    semaforo.PassACar();
-                    semaforo.doArrivingManagement();
-                    if (semaforo.getTime()-3==(seconds)){
-                        //Poner semáforo en amarillo
+            // Realizar la comprobación de las tareas de los semáforos y sus respectivo
+            // intercambio
+            int finished = 0; // Cantidad de semáforos que dejaron de pasar carros y terminaron su trabajo
+            for (Semaforo semaforo : avHorizontals) { // En los 2 semáforos horizontales
+                if (semaforo.getPassCars()) {// Si el semáforo está en verde
+                    semaforo.PassACar(); // Pasar un carro del semáforo a la intersección
+                    semaforo.doArrivingManagement(); // Hacer la comprobación de la intersección
+                    if (semaforo.getTime() - 3 == seconds) {
+                        // Poner semáforo en amarillo
                     }
-                }else if(semaforo.doArrivingManagement() && !smDownAvVertical.getPassCars()){
-                    finished++;
+                    if (semaforo.getTime() == seconds) {
+                        semaforo.switchPassCars();
+                    }
+                } else if (semaforo.doArrivingManagement()) {// En caso de que el semaforo este en rojo, un avance en la
+                                                             // intersección
+                    finished++; // Si ya no hay carros en la intersección, dar por finalizada la tarea en este
+                                // semáforo
+                    semaforo.addTime(seconds);
+
                 }
             }
-            for (Semaforo semaforo : avVerticals) {
-                if (semaforo.getPassCars()){
-                    semaforo.PassACar();
+            for (Semaforo semaforo : avVerticals) {// En los 2 semáforos verticales
+                if (semaforo.getPassCars()) {// Si el semaforo está en verde
+                    semaforo.PassACar();// Pasar un carro del semáforo a la intersección
                     semaforo.doArrivingManagement();
-                }else if(semaforo.doArrivingManagement()){
-                    finished++;
-                }
-            }
-            if (finished ==2){
-                finished =0;
-                for (Semaforo sm: avHorizontals){
-                    sm.switchPassCars();
-                }
-                for (Semaforo sm: avVerticals){
-                    sm.switchPassCars();
+                    if (semaforo.getTime() - 3 == (seconds)) {
+                        // Poner semáforo en amarillo
+                    }
+                } else if (semaforo.doArrivingManagement()) {// En caso de que el semáforo esté en rojo, un avance en la
+                                                             // intersección
+                    finished++;// Si no hay carros en la intersección, dar por finalizada la tarea en este
+                               // semáforo
+                    semaforo.addTime(seconds);
                 }
             }
 
-            // Primero empezar con la comparación de los semáforos y preferiblemente saltar
-            // tareas inecesarias
-
+            if (finished == 2) { // En caso de que los semáforos de una avenida hayan terminado su trabajo
+                finished = 0;// Reiniciar el contador y intercambiar el bool de los semáforos
+            } else if (finished > 2) {
+                // En caso de que el turno era del semáforo vertical, iniciar el semaforo
+                // horizontal y viceversa
+                if (turnVertical) {
+                    for (Semaforo sm : avHorizontals) {
+                        sm.switchPassCars();
+                    }
+                } else {
+                    for (Semaforo sm : avVerticals) {
+                        sm.switchPassCars();
+                    }
+                }
+            } else if (finished > 2) {
+                // Soltar una excepción, hay algún otro semáforo mal configurado
+            }
             // Luego calcular que avenida requiere más prioridad en base a la cantidad de
             // carros en sus semáforos
-
+            int avVerticalsCars = 0;
+            for (Semaforo semaforo : avVerticals) {
+                avVerticalsCars += semaforo.numberCarsInQueue();
+            }
+            int avHorizontalsCars = 0;
+            for (Semaforo semaforo : avHorizontals) {
+                avHorizontalsCars += semaforo.numberCarsInQueue();
+            }
+            if (avVerticalsCars>avHorizontalsCars){
+                
+            }
             // Luego calcular el promedio en base a este prioridad y actualizar el de los
             // semáforos
 
