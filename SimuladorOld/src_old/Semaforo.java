@@ -1,4 +1,4 @@
-package src_old;
+package src_old;//Para evitar que java use estos archivos, tuve que ponerlo en src_old
 
 /* 
  * El semáforo tendrá una lista de tipo queue qué recibirá y mostrará los autos
@@ -84,11 +84,7 @@ public class Semaforo {
         if (semaforoQueue.isEmpty()) {
             return 0;
         } else {
-            int carsQueue = 0;
-            for (Vehiculo p : semaforoQueue) {
-                carsQueue++;
-            }
-            return carsQueue;
+            return semaforoQueue.size();
         }
     }
 

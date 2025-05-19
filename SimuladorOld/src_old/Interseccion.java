@@ -1,5 +1,4 @@
-package src_old;
-
+package src_old;//Para evitar que java use estos archivos, tuve que ponerlo en src_old
 /*
  * Basado en una intersección entre 2 avenidas, esta intersección debe tener 4 semaforos;
  * 2 por avenida
