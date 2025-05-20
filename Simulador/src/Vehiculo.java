@@ -1,12 +1,28 @@
 import java.util.Random;
 public class Vehiculo {
     private Random random = new Random();
+    /**
+     *Texto sobre información del vehículo
+     */
     private String tipoVehiculo;
+    /**
+     *Texto sobre información del vehículo
+     */
     private String placa;
+    /**
+     * Velocidad a la que el vehículo avanza en la intersección
+     */
     private int speed;
+    /**
+     * Distancia total avanzada en la intersección
+     */
     private int distance;
 
+    /**
+     * Genera un vehículo con información aleatoria y velocidad de 1
+     */
     public Vehiculo() {
+        //Generamos tipo de vehículo aleatorio
         int tipoRandom = random.nextInt(13);
         String newType;
         switch (tipoRandom) {
@@ -50,6 +66,7 @@ public class Vehiculo {
                 newType = "urbano";
                 break;
         }
+        //Generamos una placa aleatoria
         String placa;
         placa = "" + (char) (random.nextInt(26) + 'a') + (char) (random.nextInt(26) + 'a')
                 + (char) (random.nextInt(26) + 'a');
@@ -63,6 +80,7 @@ public class Vehiculo {
         } else {
             placa = placa + " " + rndrumber;
         }
+        //Finalmente almacenamos estos datos dentro del objeto:
         this.tipoVehiculo = newType;
         this.placa = placa;
         this.speed = 1; // Velocidad constante para simplificar
@@ -85,6 +103,9 @@ public class Vehiculo {
         return distance;
     }
 
+    /**
+     * Suma la distancia qué tiene con su velocidad
+     */
     public void speedUp() {
         distance += speed;
     }
